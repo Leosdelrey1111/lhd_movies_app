@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lhz_movies_app/presentation/providers/providers.dart';
 import 'package:lhz_movies_app/presentation/widgets/widgets.dart';
-
-import '../../providers/movies/movies_providers.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -21,27 +20,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = ref.watch(nowPlayingMoviesProvider.notifier);
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
+    final slideShowMovies = nowPlayingMovies.take(6).toList();
+
     return CustomScrollView(
       slivers: [
-        SliverAppBar(
+        const SliverAppBar(
           floating: true,
           flexibleSpace: FlexibleSpaceBar(
-            title: CustomAppbar(),
             titlePadding: EdgeInsets.zero,
+            title: CustomAppbar(),
           ),
         ),
 
         SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            return Column(
-              children: [
-                MoviesSlideshow(movies: []),
-                Text('data'),
-              ],
-            );
-          }, childCount: 1),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              return Column(
+                children: [
+                  MoviesSlideshow(movies: slideShowMovies),
+                  MovieHorizontalListview(
+                    movies: nowPlayingMovies,
+                    title: 'En cines',
+                    subtitle: 'Lunes 20',
+                    loadNextPage: () => ref.read(nowPlayingMoviesProvider.notifier).loadNextPage(),
+                  ),
+                ],
+              );
+            },
+            childCount: 1,
+          ),
         ),
       ],
     );

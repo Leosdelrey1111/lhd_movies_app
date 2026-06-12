@@ -30,7 +30,7 @@ class MoviedbDatasourceImp extends MoviesDatasource {
     );
     final movieDbResponse = MovieDbResponse.fromJson(response.data);
     final List<Movie> movies = movieDbResponse.results
-        .map((movieDb) => movieMapper.movieDbToEntity(movieDb))
+        .map((movieDb) => MovieMapper.movieDbToEntity(movieDb))
         .toList();
 
     return movies;
