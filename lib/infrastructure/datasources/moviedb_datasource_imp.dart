@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart' show Dio, BaseOptions;
 import 'package:lhz_movies_app/domain/entities/movie.dart';
+import 'package:lhz_movies_app/infrastructure/models/moviedb/movie_detail.dart';
 import 'package:lhz_movies_app/infrastructure/models/moviedb/moviedb_response.dart'
-    show MovieDbResponse;
+    show MovieDbResponse, MovieDb;
 import 'package:lhz_movies_app/infrastructure/mappers/movie_mapper.dart';
 import '../../config/constants/environment.dart';
 import '../../domain/datasources/movies_datasource.dart';
@@ -18,8 +19,15 @@ class MoviedbDatasourceImp extends MoviesDatasource {
   );
 
   @override
-  Future<Movie> getMovieById(String id) {
-    throw UnimplementedError();
+  Future<Movie> getMovieById(String id) async {
+    final response = await dio.get('/movie/$id');
+    if (response.statusCode != 200)
+      throw Exception('Movie with id $id not found');
+
+    // TODO: Return Movie
+    final detail = MovieDbDetail.fromJson(response.data);
+    final Movie movie = MovieMapper.movieDbDetailToEntity(detail);
+    return movie;
   }
 
   @override

@@ -1,24 +1,25 @@
-import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lhz_movies_app/domain/domain.dart';
 
 class MovieHorizontalListview extends StatefulWidget {
   final List<Movie> movies;
   final String? title;
-  final String? subtitle;
+  final String? subTitle;
   final VoidCallback? loadNextPage;
 
   const MovieHorizontalListview({
     super.key,
     required this.movies,
-    this.title, 
-    this.subtitle,
-    this.loadNextPage
+    this.title,
+    this.subTitle,
+    this.loadNextPage,
   });
 
   @override
-  State<MovieHorizontalListview> createState() => _MovieHorizontalListviewState();
+  State<MovieHorizontalListview> createState() =>
+      _MovieHorizontalListviewState();
 }
 
 class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
@@ -27,11 +28,10 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
   @override
   void initState() {
     super.initState();
-    
     scrollController.addListener(() {
-      if ( widget.loadNextPage == null ) return;
-
-      if ( (scrollController.position.pixels + 200) >= scrollController.position.maxScrollExtent ) {
+      if (widget.loadNextPage == null) return;
+      if ((scrollController.position.pixels + 200) >=
+          scrollController.position.maxScrollExtent) {
         widget.loadNextPage!();
       }
     });
@@ -45,24 +45,49 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 350,
-      child: Column(
-        children: [
-          if ( widget.title != null || widget.subtitle != null )
-            _Title(title: widget.title, subtitle: widget.subtitle ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _Title(title: widget.title, subTitle: widget.subTitle),
+        SizedBox(
+          height: 290,
+          child: ListView.builder(
+            controller: scrollController,
+            itemCount: widget.movies.length,
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              return FadeInRight(child: _Slide(movie: widget.movies[index]));
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-          Expanded(
-            child: ListView.builder(
-              controller: scrollController,
-              itemCount: widget.movies.length,
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                return FadeInRight(child: _Slide(movie: widget.movies[index]));
-              },
-            )
-          )
+class _Title extends StatelessWidget {
+  final String? title;
+  final String? subTitle;
+
+  const _Title({this.title, this.subTitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Row(
+        children: [
+          if (title != null)
+            Text(title!, style: Theme.of(context).textTheme.titleLarge),
+          const Spacer(),
+          if (subTitle != null)
+            FilledButton.tonal(
+              onPressed: () {},
+              style: ButtonStyle(visualDensity: VisualDensity.compact),
+              child: Text(subTitle!),
+            ),
         ],
       ),
     );
@@ -72,121 +97,39 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
 class _Slide extends StatelessWidget {
   final Movie movie;
 
-  const _Slide({ required this.movie });
+  const _Slide({required this.movie});
 
   @override
   Widget build(BuildContext context) {
-    final textStyles = Theme.of(context).textTheme;
-
-    return Container(
-      margin: const EdgeInsets.symmetric( horizontal: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          
-          //* Imagen
-          SizedBox(
-            width: 150,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: GestureDetector(
-                onTap: () => context.push('/movie/${ movie.id }'),
-                child: Image.network(
-                  movie.posterPath,
-                  height: 220,
-                  width: 150,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const SizedBox(
-                      height: 220,
-                      width: 150,
-                      child: Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    );
-                  },
-                ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: GestureDetector(
+              onTap: () => context.push('/home/0/movie/${movie.id}'),
+              child: Image.network(
+                movie.posterPath,
+                width: 150,
+                height: 200,
+                fit: BoxFit.cover,
               ),
             ),
           ),
-
           const SizedBox(height: 5),
-
-          //* Title
           SizedBox(
             width: 150,
             child: Text(
               movie.title,
               maxLines: 2,
-              style: textStyles.titleSmall,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13),
             ),
           ),
-
-          //* Rating
-          MovieRating(
-            voteAverage: movie.voteAverage
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MovieRating extends StatelessWidget {
-  final double voteAverage; 
-
-  const MovieRating({
-    super.key,
-    required this.voteAverage
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyles = Theme.of(context).textTheme;
-
-    return SizedBox(
-      width: 150,
-      child: Row(
-        children: [
-          Icon(Icons.star_half_outlined, color: Colors.yellow.shade800),
-          const SizedBox(width: 3),
-          Text(
-            voteAverage.toStringAsFixed(1),
-            style: textStyles.bodyMedium?.copyWith(color: Colors.yellow.shade800)
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Title extends StatelessWidget {
-  final String? title;
-  final String? subtitle;
-
-  const _Title({ this.title, this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    final titleStyle = Theme.of(context).textTheme.titleLarge;
-
-    return Container(
-      padding: const EdgeInsets.only( top: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-      child: Row(
-        children: [
-          if ( title != null )
-            Text(title!, style: titleStyle ),
-          
-          const Spacer(),
-
-          if ( subtitle != null )
-            FilledButton.tonal(
-              style: const ButtonStyle( visualDensity: VisualDensity.compact ),
-              onPressed: (){}, 
-              child: Text( subtitle! )
-          )
         ],
       ),
     );
