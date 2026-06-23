@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lhz_movies_app/config/config.dart';
 import 'package:lhz_movies_app/presentation/screens/movies/movie_info_provider.dart'
     show movieInfoProvider;
+import 'package:lhz_movies_app/presentation/widgets/widgets.dart';
 
 import '../../../domain/domain.dart';
 
@@ -70,6 +71,7 @@ class _MovieDetails extends StatelessWidget {
         _TitleAndOverview(movie: movie),
 
         // TODO: Generos de la pelicula
+        MovieGeners(movie: movie),
 
         // TODO: Actores de la pelicula
 
@@ -111,6 +113,8 @@ class _TitleAndOverview extends StatelessWidget {
                       ? movie.overview
                       : "Sin Descripcion",
                 ),
+
+                MovieRating(voteAverage: movie.voteAverage),
 
                 Row(
                   children: [
