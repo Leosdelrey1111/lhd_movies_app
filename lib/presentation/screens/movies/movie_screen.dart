@@ -6,6 +6,7 @@ import 'package:lhz_movies_app/config/config.dart';
 import 'package:lhz_movies_app/presentation/screens/movies/movie_info_provider.dart'
     show movieInfoProvider;
 import 'package:lhz_movies_app/presentation/widgets/widgets.dart';
+import 'package:lhz_movies_app/presentation/providers/providers.dart';
 
 import '../../../domain/domain.dart';
 
@@ -26,6 +27,7 @@ class _MovieScreenState extends ConsumerState<MovieScreen> {
     super.initState();
 
     ref.read(movieInfoProvider.notifier).loadMovie(widget.movieId);
+    ref.read(actorsByMovieProvider.notifier).loadActors(widget.movieId);
   }
 
   @override
@@ -74,6 +76,7 @@ class _MovieDetails extends StatelessWidget {
         MovieGeners(movie: movie),
 
         // TODO: Actores de la pelicula
+        ActorsByMovie(movieId: movie.id.toString()),
 
         // TODO: Trailers de la pelicula
 

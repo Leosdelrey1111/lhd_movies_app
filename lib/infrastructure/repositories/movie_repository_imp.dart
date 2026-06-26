@@ -6,6 +6,11 @@ class MovieRepositoryImp extends MoviesRepository {
   MovieRepositoryImp(this.datasource);
 
   @override
+  Future<List<Actor>> getActorsByMovie(String movieId) {
+    return datasource.getActorsByMovie(movieId);
+  }
+
+  @override
   Future<Movie> getMovieById(String id) {
     return datasource.getMovieById(id);
   }
