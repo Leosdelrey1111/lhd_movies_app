@@ -79,8 +79,10 @@ class _MovieDetails extends StatelessWidget {
         ActorsByMovie(movieId: movie.id.toString()),
 
         // TODO: Trailers de la pelicula
+        VideosFromMovie(movieId: movie.id.toString()),
 
         // TODO: Peliculas similares
+        SizedBox(height: 80),
       ],
     );
   }

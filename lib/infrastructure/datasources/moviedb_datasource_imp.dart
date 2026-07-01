@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart' show Dio, BaseOptions;
 import 'package:lhz_movies_app/domain/entities/movie.dart';
 import 'package:lhz_movies_app/domain/entities/actor.dart';
+import 'package:lhz_movies_app/infrastructure/infrestructura.dart';
 import 'package:lhz_movies_app/infrastructure/models/moviedb/moviedb_detail.dart';
 import 'package:lhz_movies_app/infrastructure/models/moviedb/moviedb_response.dart'
     show MovieDbResponse, MovieDb;
@@ -9,7 +10,8 @@ import 'package:lhz_movies_app/infrastructure/mappers/movie_mapper.dart';
 import 'package:lhz_movies_app/infrastructure/mappers/actor_mapper.dart';
 import '../../config/constants/environment.dart';
 import '../../domain/datasources/movies_datasource.dart';
-
+import '../../domain/domain.dart';
+import '../mappers/video_mapper.dart';
 
 class MoviedbDatasourceImp extends MoviesDatasource {
   final dio = Dio(
@@ -86,9 +88,18 @@ class MoviedbDatasourceImp extends MoviesDatasource {
   }
 
   @override
-  Future<String> getYoutubeVideoById(String movieId) {
-    // TODO: implement getYoutubeVideoById
-    throw UnimplementedError();
+  Future<List<Video>> getYoutubeVideoById(String movieId) async {
+    final response = await dio.get('/movie/$movieId/videos');
+    final videosResponse = MovieDbVideosResponse.fromJson(response.data);
+    final videos = <Video>[];
+
+    for (final v in videosResponse.results) {
+      if (v.site == 'YouTube') {
+        final video = VideoMapper.movieDbVideoToEntity(v);
+        videos.add(video);
+      }
+    }
+    return videos;
   }
 
   @override

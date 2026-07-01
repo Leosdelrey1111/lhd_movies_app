@@ -41,7 +41,7 @@ class MovieRepositoryImp extends MoviesRepository {
   }
 
   @override
-  Future<String> getYoutubeVideoById(String movieId) {
+  Future<List<Video>> getYoutubeVideoById(String movieId) {
     return datasource.getYoutubeVideoById(movieId);
   }
 
